@@ -2,8 +2,11 @@ package ch.hostettler;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-final class Result {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+final class Result {
+    protected static final Logger LOGGER = LogManager.getLogger();
     Thread source;
     final long elapsed;
     final int count;
@@ -18,6 +21,6 @@ final class Result {
 
     void log() {
         long total = counter.addAndGet(count);
-        System.out.printf("[%s] Inserted %d rows in %d ms (%f rows/sec) (total rows inserted=%d)%n", source.getName(), count, elapsed, 1000d * ((double) count / (double) elapsed), total);
+        LOGGER.info(String.format("[%s] Inserted %,d rows in %,d ms (%,.2f rows/sec) (total rows inserted=%,d)", source.getName(), count, elapsed, 1000d * ((double) count / (double) elapsed), total));
     }
 }

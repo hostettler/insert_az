@@ -3,11 +3,10 @@ package ch.hostettler;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-final class Logger implements Runnable {
-
+final class JobLogger implements Runnable {
     BlockingQueue<Result> queue;
 
-    Logger(BlockingQueue<Result> queue) {
+    JobLogger(BlockingQueue<Result> queue) {
         this.queue = queue;
     }
 

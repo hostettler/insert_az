@@ -7,8 +7,13 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 final class Job implements Callable<Boolean> {
 
+    protected static final Logger LOGGER = LogManager.getLogger();
+    
     private final int rows;
     private long rowId;
     private PooledDataSource ds;
@@ -35,7 +40,7 @@ final class Job implements Callable<Boolean> {
             conn.setAutoCommit(false);
             long t = System.currentTimeMillis();
 
-            System.out.println(Statements.getInsertStatement(this.tempTable));
+            LOGGER.info(Statements.getInsertStatement(this.tempTable));
             try (PreparedStatement statement = conn.prepareStatement(Statements.getInsertStatement(this.tempTable))) {
 
                 for (int i = 0; i < rows; i++) {
@@ -43,18 +48,16 @@ final class Job implements Callable<Boolean> {
                     statement.addBatch();
 
                     if (i > 0 && i % batchSize == 0 || (i == rows - 1)) {
-                        System.out.println("Execute Batch : " + i);
                         statement.executeBatch();
                         statement.clearBatch();
                         statement.clearWarnings();
                         long end = System.currentTimeMillis();
                         queue.add(new Result(counter, batchSize, end - t));
                         t = end;
-                        System.out.println("End of Batch");
                     }
 
                     if (i > 0 && i % commitSize == 0 || (i == rows - 1)) {
-                        System.out.println("Commit");
+                        LOGGER.info("Commit");
                         conn.commit();
                     }
                 }
